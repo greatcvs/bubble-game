@@ -1,5 +1,5 @@
 import gsBubbleCfg from './cfg.js'
-import { _paths } from './Paths.js'
+import { _paths } from './paths.js'
 import lodash from 'lodash'
 import sizeOf from 'image-size'
 import common from '../../../lib/common/common.js'
