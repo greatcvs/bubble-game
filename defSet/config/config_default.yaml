@@ -1,0 +1,14 @@
+# 插件优先级（重启生效）
+priority: 50
+# 猜角色
+guessRole:
+  priority: 50
+  #猜角色回答时间（单位：分钟）
+  coolingTime: 1
+# 猜语音
+guessVoice:
+  priority: 50
+  #猜语音回答时间（单位：分钟）
+  coolingTime: 1
+
+

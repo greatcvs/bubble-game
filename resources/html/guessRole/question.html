@@ -1,0 +1,23 @@
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>猜头像</title>
+  <style>
+      *, html, body {padding: 0;margin: 0;}
+      .container {overflow: hidden;position: relative;transform-origin: 0 0;width: {{size}}px;height: {{size}}px;transform:scale(3);background: {{imgColor}};}
+      .container img {position: absolute;top: -{{imgTop}}px;left: -{{imgLeft}}px;}
+      .container .hellMode {filter: invert(100%);}
+      .container .hardMode {filter: grayscale(100%);}
+  </style>
+</head>
+
+<body>
+<div class="container" id="container">
+  <img id="img" src="{{src}}" alt="头像" class="{{mode}}">
+</div>
+</body>
+</html>

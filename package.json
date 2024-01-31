@@ -1,0 +1,12 @@
+{
+  "name": "bubble-game",
+  "version": "1.0.0",
+  "author": "story-x",
+  "description": "bubble-game",
+  "type": "module",
+  "scripts": {},
+  "dependencies": {},
+  "pnpm": {
+    "patchedDependencies": {}
+  }
+}
