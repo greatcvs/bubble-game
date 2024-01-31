@@ -1,6 +1,6 @@
 import plugin from '../../../lib/plugins/plugin.js'
 
-import Admin from '../model/admin.js'
+import Admin from '../model/Admin.js'
 import GreatCfg from '../model/cfg.js'
 
 export class admin extends plugin {
