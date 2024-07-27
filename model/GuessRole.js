@@ -40,16 +40,20 @@ let srCache = new Set()
 export default class GuessRole extends Base {
   constructor (e) {
     super(e)
-    this.e = e
+    this.e = e || {}
     this.model = 'guessRole'
     this.template = this.model
     this._path = process.cwd().replace(/\\/g, '/')
     this.guessRoleCfg = gsBubbleCfg.get('guessRole')
-    this.pattern = '普通'
+    this.e.pattern = '普通模式'
     this.guessAvatarStart = segment.button(
       [{ text: '⭕我猜', input: '/我猜' }, { text: '❌放弃', input: '/结束猜角色' }]
     )
-    this.game = this.e?.game || 'gs'
+    this.e.game = this.e.game || 'gs'
+    this.game = this.e.game
+    this.guessAvatarEnd = segment.button(
+      [{ text: '🎉再来一局', callback: `/${gameType[this.e.game]}猜角色${this.e.pattern}` }, { text: `${this.e.game === 'gs' ? '星铁' : '原神'}猜角色✨`, callback: `/${this.e.game === 'gs' ? '星铁' : '原神'}猜角色${this.e.pattern}模式` }]
+    )
     // 不在进行
     this.guessAvatarNot = segment.button(
       [{ text: '🎉原神猜角色', callback: '/原神猜角色' }, { text: '原神猜角色✨', callback: '/星铁猜角色' }]
@@ -104,6 +108,12 @@ export default class GuessRole extends Base {
     const promise = await this.e.runtime.render(_paths.pluginName, question.tplFile, promiseDate, { retType: 'base64' })
     if (promise) {
       const replMsg = [promise]
+      if (this.e.autoStratFlag) {
+        const { coolingTime } = this.guessRoleCfg
+        const cdTime = coolingTime * 60
+        replMsg.unshift(`『当前游戏』：${gameType[this.e.game]}\n『当前模式』：${this.e.pattern}\n『更多命令』：发送” 猜角色帮助 “获取\n下面是『随机角色』的『随机一角』，${cdTime}秒之后揭晓答案！`)
+      }
+
       if (this.isBot.qqBot) {
         replMsg.push(this.guessAvatarStart)
       }
@@ -257,11 +267,11 @@ export default class GuessRole extends Base {
     }
     if (randomImgPath === 'splash.webp') {
       if (game === 'gs') {
-        imgGuessSize.min = 50
-        imgGuessSize.max = 150
+        imgGuessSize.min = 200
+        imgGuessSize.max = 400
       } else {
-        imgGuessSize.min = 80
-        imgGuessSize.max = 200
+        imgGuessSize.min = 200
+        imgGuessSize.max = 400
       }
       imgGuessSize.cool = 3
     }
@@ -281,14 +291,16 @@ export default class GuessRole extends Base {
       size = lodash.random(imgGuessSize.min, imgGuessSize.max)
       helpText = '%s'
     }
-    this.pattern = guessConfig.pattern
+    this.e.pattern = guessConfig.pattern
     const { coolingTime } = this.guessRoleCfg
     const cdTime = coolingTime * 60
-    helpText = helpText.replace('%s', `即将发送一张『随机角色』的『随机一角』，${cdTime}秒之后揭晓答案！`)
-    helpText = `『当前游戏』：${gameType[game]}\n『当前模式』：${guessConfig.pattern}\n『更多命令』：发送” 猜角色帮助 “获取\n${helpText}`
-    // #猜角色困难模式”或者“#猜角色地狱模式
-    let tips = [helpText]
-    this.e.reply(tips, false, { at: false, recallMsg: 100 })
+    if (!this.e.autoStratFlag) {
+      helpText = helpText.replace('%s', `即将发送一张『随机角色』的『随机一角』，${cdTime}秒之后揭晓答案！`)
+      helpText = `『当前游戏』：${gameType[game]}\n『当前模式』：${guessConfig.pattern}\n『更多命令』：发送” 猜角色帮助 “获取\n${helpText}`
+      // #猜角色困难模式”或者“#猜角色地狱模式
+      let tips = [helpText]
+      this.e.reply(tips, false, { at: false, recallMsg: 100 })
+    }
 
     // data数组随机
     const randomRole = lodash.sample(data)
@@ -347,7 +359,7 @@ export default class GuessRole extends Base {
 
     if (this.isBot.qqBot && !isReply) {
       replyMsg.push(segment.button(
-        [{ text: '🎉再来一局', callback: `/${gameType[cfg.game]}猜角色${cfg.pattern}` }, { text: `${cfg.game === 'gs' ? '星铁' : '原神'}猜角色✨`, callback: `/${cfg.game === 'gs' ? '星铁' : '原神'}猜角色${cfg.pattern}模式` }]
+        [{ text: '🎉再来一局', callback: `/${gameType[cfg.game]}猜角色${cfg.pattern}` }, { text: `${cfg.game === 'gs' ? '星铁' : '原神'}猜角色✨`, callback: `/${cfg.game === 'gs' ? '星铁' : '原神'}猜角色${cfg.pattern}` }]
       ))
     }
     await this.e.reply(replyMsg, true)
@@ -357,6 +369,8 @@ export default class GuessRole extends Base {
       await common.sleep(2500)
       this.e.msg = `#猜角色${pattern}`
       this.e.game = cfg.game
+      this.e.pattern = pattern
+      this.e.autoStratFlag = true
       await this.guessAvatar(cfg.game)
     }
   }
